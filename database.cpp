@@ -27,6 +27,7 @@ Database::Database(QObject *parent) : QObject(parent)
         createTable(_tableName);
     }
 
+//    clearTable(_tableName);
 
     _imageModel = new ImageModel(_tableName, this);
 }
@@ -42,7 +43,8 @@ bool Database::createTable(const QString &tableName)
     if(!query.exec( "CREATE TABLE " + tableName + " ("
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                                   "image BLOB            NOT NULL,"
-                                  "diff INTEGER          NOT NULL"
+                                  "diff INTEGER          NOT NULL,"
+                                  "hash BLOB     NOT NULL"
                             " )"
                     )){
         qDebug() << "DataBase: error of create " << tableName;

@@ -11,6 +11,7 @@
 
 namespace {
     const char * fmt = "png";
+//    const uint32_t hashSize = 64;
 }
 
 ScreenSaver::ScreenSaver(QObject *parent) : QObject(parent)
@@ -21,7 +22,7 @@ ScreenSaver::ScreenSaver(QObject *parent) : QObject(parent)
         save(_future.result());
     });
 
-    _screenshotTimer.setInterval(std::chrono::seconds(5));
+    _screenshotTimer.setInterval(std::chrono::minutes(1));
 
 
     auto byteArray = _database->imageModel()->record(_database->imageModel()->rowCount() - 1).value("image").toByteArray();
@@ -42,6 +43,7 @@ void ScreenSaver::makeScreenshot()
     difference();
 
     _prevScreenImage = _currentScreenImage;
+//    _prevImageHash = _currentImageHash;
 }
 
 void ScreenSaver::start()
@@ -68,6 +70,9 @@ void ScreenSaver::save(int difference)
     QSqlField diffField("diff", QVariant::Int);
     diffField.setValue(difference);
     newRecord.append(diffField);
+    QSqlField hashField("hash", QVariant::ByteArray);
+    hashField.setValue(QCryptographicHash::hash(imageData, QCryptographicHash::Md5));
+    newRecord.append(hashField);
     _database->imageModel()->insertRecord(0, newRecord);
     _database->imageModel()->submitAll();
 
@@ -75,15 +80,16 @@ void ScreenSaver::save(int difference)
 
 void ScreenSaver::difference()
 {
-    if(_currentScreenImage.isNull() ||
-            _prevScreenImage.isNull())
-        return;
 
 
     QImage prevCopy = _prevScreenImage.copy();
     QImage currentCopy = _currentScreenImage.copy();
 
-    _future = QtConcurrent::run([prevCopy, currentCopy](){
+    _future = QtConcurrent::run([prevCopy, currentCopy, this](){
+
+        if(prevCopy.isNull()) {
+            return -1; // first image
+        }
         int pixelDiff = 0;
 
         for(int i = 0; i < currentCopy.width(); i++) {
@@ -94,6 +100,8 @@ void ScreenSaver::difference()
         }
 
         return (int)std::lround(100 * (1. - (pixelDiff / double(currentCopy.width() * currentCopy.height()))));
+//        _currentImageHash = ::dhash(currentCopy, hashSize);
+//        return ::hammingDistance(_prevImageHash, _currentImageHash);
     });
 
     _watcher.setFuture(_future);

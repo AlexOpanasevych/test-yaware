@@ -46,7 +46,7 @@ ApplicationWindow {
 
             Label {
                 Layout.alignment: Qt.AlignHCenter
-                text: "Similarity: %1%".arg(diff)
+                text: diff < 0 ? "" : "Similarity: %1%".arg(diff)
                 Layout.bottomMargin: 5
                 Material.theme: Material.White
             }
