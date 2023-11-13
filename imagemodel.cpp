@@ -51,16 +51,6 @@ QHash<int, QByteArray> ImageModel::roleNames() const
     return roles;
 }
 
-QModelIndex ImageModel::indexForRole(const QModelIndex& index, int role) const
-{
-    int row = index.row();
-    int column = index.column();
-    if (role > Qt::UserRole) {
-        column = role - Qt::UserRole - 1;
-    }
-    return this->index(row, column);
-}
-
 QSortFilterProxyModel *ImageModel::sortModel() const
 {
     return _sortModel;

@@ -15,7 +15,7 @@ public:
     enum ImageModelRoles {Id = Qt::UserRole, Image, Diff};
     explicit ImageModel(const QString &tableName, QObject *parent = nullptr);
 
-    QModelIndex indexForRole(const QModelIndex& index, int role) const;
+//    QModelIndex indexForRole(const QModelIndex& index, int role) const;
 
 
     // QAbstractItemModel interface
